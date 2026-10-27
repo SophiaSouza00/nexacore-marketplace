@@ -1,0 +1,106 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum PerfilUsuario {
+  CLIENTE
+  ADMIN
+}
+
+enum StatusUsuario {
+  ATIVO
+  INATIVO
+}
+
+enum StatusPedido {
+  PENDENTE
+  PAGO
+  EM_SEPARACAO
+  ENVIADO
+  ENTREGUE
+  CANCELADO
+}
+
+model Usuario {
+  id              String        @id @default(cuid())
+  nome            String
+  email           String        @unique
+  senhaHash       String        @map("senha_hash")
+  perfil          PerfilUsuario @default(CLIENTE)
+  status          StatusUsuario @default(ATIVO)
+  dataCadastro    DateTime      @default(now()) @map("data_cadastro")
+  dataAtualizacao DateTime      @updatedAt @map("data_atualizacao")
+
+  pedidos Pedido[]
+
+  @@map("usuarios")
+}
+
+model Categoria {
+  id        String    @id @default(cuid())
+  nome      String    @unique
+  slug      String    @unique
+  descricao String?
+  ativo     Boolean   @default(true)
+  produtos  Produto[]
+
+  @@map("categorias")
+}
+
+model Produto {
+  id                String      @id @default(cuid())
+  nome              String
+  slug              String      @unique
+  descricao         String
+  categoriaId       String      @map("categoria_id")
+  categoria         Categoria   @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  preco             Decimal     @db.Decimal(10, 2)
+  quantidadeEstoque Int         @default(0) @map("quantidade_estoque")
+  imagemUrl         String      @map("imagem_url")
+  ativo             Boolean     @default(true)
+  dataCadastro      DateTime    @default(now()) @map("data_cadastro")
+  dataAtualizacao   DateTime    @updatedAt @map("data_atualizacao")
+
+  itensPedido ItemPedido[]
+
+  @@index([categoriaId])
+  @@index([ativo])
+  @@index([nome])
+  @@map("produtos")
+}
+
+model Pedido {
+  id              String       @id @default(cuid())
+  usuarioId       String       @map("usuario_id")
+  usuario         Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+  dataPedido      DateTime     @default(now()) @map("data_pedido")
+  valorTotal      Decimal      @map("valor_total") @db.Decimal(10, 2)
+  status          StatusPedido @default(PENDENTE)
+  dataAtualizacao DateTime     @updatedAt @map("data_atualizacao")
+
+  itens ItemPedido[]
+
+  @@index([usuarioId])
+  @@index([status])
+  @@map("pedidos")
+}
+
+model ItemPedido {
+  id            String   @id @default(cuid())
+  pedidoId      String   @map("pedido_id")
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produtoId     String   @map("produto_id")
+  produto       Produto  @relation(fields: [produtoId], references: [id], onDelete: Restrict)
+  quantidade    Int
+  precoUnitario Decimal  @map("preco_unitario") @db.Decimal(10, 2)
+  subtotal      Decimal  @db.Decimal(10, 2)
+
+  @@index([pedidoId])
+  @@index([produtoId])
+  @@map("itens_pedido")
+}
