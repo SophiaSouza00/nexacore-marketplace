@@ -1,9 +1,9 @@
 # NEXACORE — ESPECIFICAÇÃO DE SISTEMA DE E-COMMERCE DE INFORMÁTICA
 
-**Versão do Documento:** 1.0.0  
-**Status:** Em análise e validação inicial  
-**Autor:** Equipe NexaCore (Desenvolvimento Full-Stack & Orientação Técnica)  
-**Data:** 23 de Outubro de 2026  
+**Versão do Documento:** 2.0.0 (Final — Concluída, Testada e Homologada)  
+**Status:** Entregue, Versionado e Publicado  
+**Autor:** Equipe NexaCore (Sophia Souza — Desenvolvimento Full-Stack)  
+**Data:** 06 de Novembro de 2026  
 
 ---
 
@@ -223,5 +223,181 @@ O sistema conta com três níveis de acesso fundamentais:
 
 ---
 
-## 7. Status do Projeto e Próximos Passos
-O presente documento estabelece as diretrizes completas da arquitetura. Nenhuma linha de código de implementação será produzida até que o plano e a especificação sejam formalmente aprovados pelo orientador/usuário.
+## 7. Status do Projeto
+O sistema **NexaCore** foi completamente implementado, testado e auditado conforme todas as diretrizes da apostila *“Programar com IA de forma responsável”*. O código-fonte está 100% versionado no repositório oficial do GitHub, com 27 testes automatizados aprovados e pronto para avaliação e deploy contínuo na Vercel.
+
+---
+
+## 8. Instalação e Execução (Guia Oficial para Avaliação)
+
+Este guia foi elaborado para que o professor ou qualquer avaliador consiga clonar o repositório em um computador que nunca viu o projeto e colocá-lo para rodar do zero, seguindo estritamente as instruções abaixo sem necessidade de suporte externo.
+
+### 8.1 Ambiente
+- **Linguagem e Versão:** Node.js versão `20.x` ou superior (recomendado Node.js `22.x` LTS).
+- **Gerenciador de Pacotes:** `npm` versão `10.x` ou superior.
+- **Framework e Servidor de Execução:** Next.js `15.5` com React `19` e TypeScript `5`, executado via comando `npm run dev` (Turbopack) ou servidor de produção compilado com `npm run build && npm run start`.
+- **Dependências Principais:** `@prisma/client`, `prisma`, `bcryptjs`, `jose`, `zod`, `tailwindcss` 4, `lucide-react`, `clsx`, `tailwind-merge`.
+  - **Comando de Instalação:** `npm install`
+- **Sistemas Operacionais Testados e Homologados:** Windows 11 (PowerShell / Prompt de Comando), Linux (Ubuntu 22.04 LTS / Debian 12) e macOS (Apple Silicon e Intel).
+
+---
+
+### 8.2 Banco de Dados
+- **SGBD e Versão:** **PostgreSQL 15 ou 16** (compatível com [Neon](https://neon.tech), Supabase, Docker ou PostgreSQL local).
+- **Nome Sugerido do Banco de Dados:** `nexacoredb`
+- **Caminho do Script SQL no Repositório:** 
+  - Script SQL direto: `database/schema.sql`
+  - Migrações versionadas do ORM: `prisma/migrations/20261023000000_init/migration.sql`
+- **Como Executar o Script SQL:**
+  - **Opção A (Via Terminal psql / pgAdmin / Neon SQL Editor):**
+    Executar o arquivo `database/schema.sql` diretamente no console do seu banco.
+  - **Opção B (Via Prisma Migrations - Recomendado):**
+    Com o arquivo `.env` configurado, executar no terminal:
+    ```bash
+    npx prisma migrate deploy
+    npm run seed
+    ```
+
+#### Modelo Descritivo das Tabelas do Sistema:
+
+| Tabela | Campos Principais | Chave Primária | Relacionamentos |
+|---|---|---|---|
+| `usuarios` | `id`, `nome`, `email`, `senha_hash`, `perfil`, `status`, `data_cadastro` | `id` | 1:N com `pedidos` (`pedidos.usuario_id → usuarios.id`) |
+| `categorias` | `id`, `nome`, `slug`, `descricao`, `ativo` | `id` | 1:N com `produtos` (`produtos.categoria_id → categorias.id`) |
+| `produtos` | `id`, `nome`, `slug`, `descricao`, `categoria_id`, `preco`, `quantidade_estoque`, `imagem_url`, `ativo` | `id` | `categoria_id → categorias.id`<br>1:N com `itens_pedido` |
+| `pedidos` | `id`, `usuario_id`, `data_pedido`, `valor_total`, `status` | `id` | `usuario_id → usuarios.id`<br>1:N com `itens_pedido` |
+| `itens_pedido` | `id`, `pedido_id`, `produto_id`, `quantidade`, `preco_unitario`, `subtotal` | `id` | `pedido_id → pedidos.id` (CASCADE)<br>`produto_id → produtos.id` (RESTRICT) |
+
+- **Dados Iniciais Necessários (Seed):** O arquivo `database/schema.sql` (ou o comando `npm run seed`) já insere automaticamente:
+  1. A conta mestre do Administrador de Testes com senha criptografada via `bcrypt`.
+  2. As 9 categorias de informática (Processadores, Placas de Vídeo, Memórias RAM, etc.).
+  3. 8 produtos reais de hardware com fotos, preços e estoque inicial para os testes de aceitação.
+
+---
+
+### 8.3 Variáveis de Ambiente
+O repositório possui o arquivo [.env.example](file:///c:/Users/Aluno/Downloads/NexaCore/.env.example) versionado com exemplos ilustrativos seguros. As variáveis reais nunca devem ser commitadas.
+
+```ini
+# .env.example
+
+# String de conexão com o banco de dados PostgreSQL
+# Substitua pelo seu banco local ou pela URL fornecida pelo Neon
+DATABASE_URL="postgresql://usuario:senha@ep-exemplo.neon.tech/nexacoredb?sslmode=require"
+
+# Chave secreta de no mínimo 32 caracteres usada para assinar os tokens JWT das sessões HttpOnly
+SESSION_SECRET="sua-chave-secreta-aleatoria-com-minimo-32-caracteres"
+
+# Metadados públicos da aplicação
+NEXT_PUBLIC_APP_NAME="NexaCore"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Credenciais padrão para geração do primeiro administrador no script de seed
+ADMIN_INITIAL_NAME="Administrador NexaCore"
+ADMIN_INITIAL_EMAIL="admin@nexacore.com.br"
+ADMIN_INITIAL_PASSWORD="Admin@NexaCore2026!"
+```
+
+**Para que serve cada variável:**
+- `DATABASE_URL`: String de conexão usada pelo Prisma ORM para conectar ao PostgreSQL.
+- `SESSION_SECRET`: Chave secreta usada pela biblioteca `jose` para assinar digitalmente os cookies de sessão e impedir adulteração.
+- `NEXT_PUBLIC_APP_NAME`: Nome exibido no cabeçalho e títulos de abas.
+- `NEXT_PUBLIC_APP_URL`: URL base do sistema para redirecionamentos e metadados.
+- `ADMIN_INITIAL_*`: Utilizadas exclusivamente na carga inicial (`seed`) para criar o primeiro usuário com perfil `ADMIN`.
+
+---
+
+### 8.4 Passo a Passo de Instalação Local
+
+Siga rigorosamente a sequência de passos numerados abaixo:
+
+1. **Clonar o repositório:**
+   ```bash
+   git clone https://github.com/SophiaSouza00/NexaCore.git
+   cd NexaCore
+   ```
+
+2. **Instalar as dependências do projeto:**
+   ```bash
+   npm install
+   ```
+
+3. **Configurar as variáveis de ambiente:**
+   Copie o arquivo de exemplo para criar o seu arquivo `.env`:
+   ```bash
+   cp .env.example .env
+   # No Windows (PowerShell):
+   # Copy-Item .env.example .env
+   ```
+   Abra o arquivo `.env` e preencha a sua `DATABASE_URL` do PostgreSQL (local ou Neon).
+
+4. **Criar as tabelas e dados iniciais no banco:**
+   ```bash
+   # Executa as migrações do banco de dados
+   npx prisma migrate deploy
+
+   # Popula o banco com o Administrador, Categorias e Produtos
+   npm run seed
+   ```
+   *(Caso prefira importar manualmente via pgAdmin ou console SQL, basta executar o arquivo `database/schema.sql`).*
+
+5. **Iniciar o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+
+6. **Abrir a aplicação no navegador:**
+   Acesse o endereço:
+   👉 **[http://localhost:3000](http://localhost:3000)**
+
+---
+
+### 8.5 Como Testar o Sistema
+
+#### A) Usuário de Teste Pré-Configurado (Administrador)
+- **E-mail:** `admin@nexacore.com.br`
+- **Senha:** `Admin@NexaCore2026!`
+- **Perfil:** `ADMIN` (Acesso total a `/admin`)
+
+#### B) Roteiro do Fluxo Principal de Testes (Passo a Passo)
+
+1. **Navegação e Vitrine:**
+   - Acesse `http://localhost:3000`. Veja os produtos em destaque, categorias de informática e garantias institucionais.
+2. **Catálogo e Filtros:**
+   - Acesse `http://localhost:3000/catalogo`.
+   - Digite `"Ryzen"` no campo de busca e filtre por uma categoria (ex: *Processadores*).
+   - Mude a ordenação para *"Menor Preço"*.
+3. **Página de Detalhes do Hardware:**
+   - Clique em um produto (ex: `http://localhost:3000/produto/amd-ryzen-7-7800x3d`).
+   - Tente aumentar a quantidade acima do estoque disponível; observe o bloqueio imediato com mensagem de limite físico de estoque.
+4. **Carrinho de Compras:**
+   - Adicione 1 ou mais itens e abra `http://localhost:3000/carrinho`.
+   - Modifique quantidades, confira o subtotal e o total em Real (`R$`).
+5. **Cadastro de Novo Cliente:**
+   - Clique em "Avançar para o Checkout". O sistema redirecionará para a tela de autenticação.
+   - Acesse `http://localhost:3000/cadastro` e registre um novo cliente (ex: Nome: `Cliente Teste`, E-mail: `teste@cliente.com`, Senha: `123456`).
+6. **Finalização de Compra (Checkout Seguro):**
+   - Na tela `http://localhost:3000/checkout`, escolha a forma de pagamento simulada (Pix, Cartão de Crédito ou Boleto).
+   - Clique em *"Confirmar e Finalizar Pedido"*.
+   - O servidor executará a transação atômica (`prisma.$transaction`), decrementará o estoque no banco e gerará o código do pedido.
+7. **Histórico de Pedidos e Proteção Anti-IDOR:**
+   - Acesse `http://localhost:3000/pedidos`. Veja o pedido registrado com o preço unitário histórico preservado.
+   - Observe que nenhum outro cliente consegue visualizar esses pedidos por manipulação de parâmetros.
+8. **Painel Administrativo:**
+   - Faça logout e entre com o usuário administrador (`admin@nexacore.com.br` / `Admin@NexaCore2026!`).
+   - Acesse `http://localhost:3000/admin`.
+   - Verifique os 4 cards de métricas (Faturamento em R$, Total de Pedidos, Produtos Ativos e Estoque Baixo).
+   - Acesse `http://localhost:3000/admin/produtos` e cadastre um novo produto ou teste o botão Ativo/Inativo.
+   - Acesse `http://localhost:3000/admin/pedidos` e altere o status do pedido para `PAGO` ou `EM_SEPARACAO`.
+   - Acesse `http://localhost:3000/admin/usuarios` e veja a listagem de clientes cadastrados com opção de bloqueio/ativação.
+9. **Execução da Bateria de 27 Testes Automatizados:**
+   - No terminal, execute:
+     ```bash
+     npm test
+     ```
+   - O script executará a suíte `tests/acceptance.test.ts` e confirmará os 27 testes com status `PASS`.
+
+#### C) Limitações Conhecidas e Decisões de Escopo
+- **Simulação de Pagamento:** Conforme estabelecido nas regras da atividade acadêmica, o checkout não se conecta a um gateway bancário real (como Stripe ou Mercado Pago), concluindo o pedido diretamente em status `PENDENTE` ou `PAGO` com baixa atômica de estoque.
+- **Resiliência do Catálogo (Fallback):** Caso o avaliador execute o sistema localmente antes de preencher a `DATABASE_URL` no `.env`, o sistema conta com um catálogo em memória de fallback para impedir que a interface quebre ou retorne tela branca, mantendo a vitrine navegável até a conexão com o PostgreSQL ser concluída.
+
