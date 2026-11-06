@@ -110,12 +110,38 @@ NexaCore/
 
 ## 🧪 Scripts Disponíveis
 
-- `npm run dev`: Inicia o servidor local em modo de desenvolvimento.
-- `npm run build`: Compila a aplicação para produção e verifica integridade dos tipos.
+- `npm run dev`: Inicia o servidor local em modo de desenvolvimento (`http://localhost:3000`).
+- `npm run build`: Compila a aplicação para produção e verifica integridade estrita dos tipos TypeScript.
 - `npm run start`: Inicia o servidor em modo de produção após o build.
 - `npm run lint`: Executa a verificação de código e boas práticas com ESLint.
+- `npm test`: Executa a bateria de 27 testes de aceitação automatizados.
+- `npm run seed`: Popula o banco com as 9 categorias de informática, produtos de teste e o Administrador padrão.
+
+---
+
+## 🌐 Publicação em Produção (Vercel & Neon)
+
+### 1. Banco de Dados PostgreSQL (Neon)
+1. Crie uma conta gratuita em [neon.tech](https://neon.tech).
+2. Crie um novo projeto com o nome **nexacore-db**.
+3. Copie a string de conexão fornecida (formato: `postgresql://usuario:senha@ep-exemplo.neon.tech/neondb?sslmode=require`).
+4. Execute as migrações e o seed a partir do seu terminal local apontando para a URL do Neon:
+   ```bash
+   npx prisma migrate deploy
+   npm run seed
+   ```
+
+### 2. Deploy na Vercel
+1. Acesse [vercel.com](https://vercel.com) e conecte sua conta do GitHub.
+2. Importe o repositório `SophiaSouza00/NexaCore`.
+3. Na seção **Environment Variables**, cadastre as seguintes variáveis:
+   - `DATABASE_URL`: String de conexão fornecida pelo Neon com SSL habilitado.
+   - `SESSION_SECRET`: Chave secreta aleatória de no mínimo 32 caracteres (ex: gerada via `openssl rand -base64 32`).
+   - `NEXT_PUBLIC_APP_NAME`: `NexaCore`
+   - `NEXT_PUBLIC_APP_URL`: URL gerada pela Vercel (ex: `https://nexacore.vercel.app`).
+4. Clique em **Deploy**. A Vercel executará o build estático e disponibilizará a loja virtual com certificado SSL HTTPS automático.
 
 ---
 
 ## 📄 Licença
-Projeto desenvolvido exclusivamente para fins acadêmicos e educacionais.
+Projeto acadêmico desenvolvido exclusivamente para fins educacionais e de demonstração de arquitetura full-stack.
