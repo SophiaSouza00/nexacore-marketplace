@@ -228,11 +228,11 @@ O sistema **NexaCore** foi completamente implementado, testado e auditado confor
 
 ---
 
-## 8. Instalação e Execução (Guia Oficial para Avaliação)
+## 8. Instalação e Execução (Seção 3 da Avaliação)
 
 Este guia foi elaborado para que o professor ou qualquer avaliador consiga clonar o repositório em um computador que nunca viu o projeto e colocá-lo para rodar do zero, seguindo estritamente as instruções abaixo sem necessidade de suporte externo.
 
-### 8.1 Ambiente
+### 3.1 Ambiente
 - **Linguagem e Versão:** Node.js versão `20.x` ou superior (recomendado Node.js `22.x` LTS).
 - **Gerenciador de Pacotes:** `npm` versão `10.x` ou superior.
 - **Framework e Servidor de Execução:** Next.js `15.5` com React `19` e TypeScript `5`, executado via comando `npm run dev` (Turbopack) ou servidor de produção compilado com `npm run build && npm run start`.
@@ -242,7 +242,7 @@ Este guia foi elaborado para que o professor ou qualquer avaliador consiga clona
 
 ---
 
-### 8.2 Banco de Dados
+### 3.2 Banco de Dados
 - **SGBD e Versão:** **PostgreSQL 15 ou 16** (compatível com [Neon](https://neon.tech), Supabase, Docker ou PostgreSQL local).
 - **Nome Sugerido do Banco de Dados:** `nexacoredb`
 - **Caminho do Script SQL no Repositório:** 
@@ -275,7 +275,7 @@ Este guia foi elaborado para que o professor ou qualquer avaliador consiga clona
 
 ---
 
-### 8.3 Variáveis de Ambiente
+### 3.3 Variáveis de Ambiente
 O repositório possui o arquivo [.env.example](file:///c:/Users/Aluno/Downloads/NexaCore/.env.example) versionado com exemplos ilustrativos seguros. As variáveis reais nunca devem ser commitadas.
 
 ```ini
@@ -307,14 +307,14 @@ ADMIN_INITIAL_PASSWORD="Admin@NexaCore2026!"
 
 ---
 
-### 8.4 Passo a Passo de Instalação Local
+### 3.4 Passo a Passo de Instalação Local
 
 Siga rigorosamente a sequência de passos numerados abaixo:
 
 1. **Clonar o repositório:**
    ```bash
-   git clone https://github.com/SophiaSouza00/NexaCore.git
-   cd NexaCore
+   git clone https://github.com/SophiaSouza00/nexacore-marketplace.git
+   cd nexacore-marketplace
    ```
 
 2. **Instalar as dependências do projeto:**
@@ -352,7 +352,7 @@ Siga rigorosamente a sequência de passos numerados abaixo:
 
 ---
 
-### 8.5 Como Testar o Sistema
+### 3.5 Como Testar o Sistema
 
 #### A) Usuário de Teste Pré-Configurado (Administrador)
 - **E-mail:** `admin@nexacore.com.br`
